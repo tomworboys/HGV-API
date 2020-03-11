@@ -12,16 +12,18 @@ namespace RegressionPackAPITests.StepDefinitions
     public sealed class ClientSteps
     {
         private readonly ApiContext apiContext;
+        private readonly ClientHelper clientHelper;
 
         public ClientSteps(ApiContext context)
         {
             this.apiContext = context;
+            clientHelper = new ClientHelper(this.apiContext);
         }
 
         [Given(@"a user with valid credentials")]
         public void GivenAUserWithValidCredentials()
         {
-            apiContext.PostTokenRequest = ClientHelper.GetTokenRequest();
+            apiContext.PostTokenRequest = clientHelper.GetTokenRequest();
         }
 
         [Given(@"a valid token")]
@@ -46,8 +48,10 @@ namespace RegressionPackAPITests.StepDefinitions
         [Given(@"a valid token and session")]
         public void GivenAValidTokenAndSession()
         {
-            apiContext.PostTokenResponse = ClientHelper.GetRestResonse<PostTokenResponse>(
-                $"{ApiEndpoints.Sessions}?token={apiContext.Token}", HttpMethod.Get, apiContext.Client).Result;
+            apiContext.endpoint = $"{ApiEndpoints.Sessions}?token={apiContext.Token}";
+
+            apiContext.PostTokenResponse = clientHelper.GetRestResonse<PostTokenResponse>(
+                apiContext.endpoint, HttpMethod.Get, apiContext.Client).Result;
 
             apiContext.PostTokenResponse.Success.Should().Be(true);
         }
@@ -55,30 +59,36 @@ namespace RegressionPackAPITests.StepDefinitions
         [When(@"the api/Tokens/Request is submitted")]
         public void WhenTheApiTokensRequestIsSubmitted()
         {
-            apiContext.PostTokenResponse = ClientHelper.PostToken(apiContext.Client, apiContext.PostTokenRequest);
+            apiContext.PostTokenResponse = clientHelper.PostToken(apiContext.Client, apiContext.PostTokenRequest);
         }
 
         [When(@"the api/dashboards/totals request is submitted")]
         public void WhenTheApiDashboardsTotalsRequestIsSubmitted()
         {
-            apiContext.DashboardTotalsResponse = ClientHelper.GetRestResonse<DashboardTotalsResponse>(
-                $"{ApiEndpoints.DashboardsTotals}?token={apiContext.Token}", HttpMethod.Get, apiContext.Client).Result;
+            apiContext.endpoint = $"{ApiEndpoints.DashboardsTotals}?token={apiContext.Token}";
+
+            apiContext.DashboardTotalsResponse = clientHelper.GetRestResonse<DashboardTotalsResponse>(
+                apiContext.endpoint, HttpMethod.Get, apiContext.Client).Result;
         }
 
         [When(@"the api/mileage request is submitted")]
         public void WhenTheApiMileageRequestIsSubmitted()
         {
-            apiContext.MileageResponse = ClientHelper.GetRestResonse<MileageResponse>(
-                $"{ApiEndpoints.Mileage}/{apiContext.MileageRequest.MileageHistoryId}?" +
+            apiContext.endpoint = $"{ApiEndpoints.Mileage}/{apiContext.MileageRequest.MileageHistoryId}?" +
                 $"mileage={apiContext.MileageRequest.Mileage}&unit={apiContext.MileageRequest.Unit}" +
-                $"&token={apiContext.Token}", HttpMethod.Put, apiContext.Client).Result;
+                $"&token={apiContext.Token}";
+
+            apiContext.MileageResponse = clientHelper.GetRestResonse<MileageResponse>(
+                apiContext.endpoint, HttpMethod.Put, apiContext.Client).Result;
         }
 
         [When(@"the api/sessions delete request is submitted")]
         public void WhenTheApiSessionsDeleteRequestIsSubmitted()
         {
-            apiContext.SessionDelete = ClientHelper.GetRestResonse<SessionDelete>(
-                $"{ApiEndpoints.Sessions}?token={apiContext.Token}", HttpMethod.Delete, apiContext.Client).Result;
+            apiContext.endpoint = $"{ApiEndpoints.Sessions}?token={apiContext.Token}";
+
+            apiContext.SessionDelete = clientHelper.GetRestResonse<SessionDelete>(
+                apiContext.endpoint, HttpMethod.Delete, apiContext.Client).Result;
         }
 
         [Then(@"the api/Tokens response is returned")]

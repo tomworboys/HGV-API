@@ -10,10 +10,12 @@ namespace RegressionPackAPITests.Utils
     {
         private static IConfiguration config;
         private readonly ApiContext apiContext;
+        private readonly ClientHelper clientHelper;
 
         public Hooks(ApiContext apiContext)
         {
             this.apiContext = apiContext;
+            clientHelper = new ClientHelper(this.apiContext);
         }
 
         [BeforeTestRun]
@@ -34,8 +36,8 @@ namespace RegressionPackAPITests.Utils
         [BeforeScenario]
         public void BeforeScenario()
         {
-            apiContext.Client = ClientHelper.GetClient();
-            apiContext.Token = ClientHelper.PostToken(apiContext.Client, ClientHelper.GetTokenRequest()).Token;
+            apiContext.Client = clientHelper.GetClient();
+            apiContext.Token = clientHelper.PostToken(apiContext.Client, clientHelper.GetTokenRequest()).Token;
         }
 
         [AfterScenario]

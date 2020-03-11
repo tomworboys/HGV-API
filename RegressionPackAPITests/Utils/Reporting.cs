@@ -1,8 +1,10 @@
 ﻿using AventStack.ExtentReports;
 using AventStack.ExtentReports.Gherkin.Model;
 using AventStack.ExtentReports.Reporter;
+using RegressionPackAPITests.Context;
 using RegressionPackAPITests.POCO.Setup;
 using System;
+using System.IO;
 using TechTalk.SpecFlow;
 
 namespace RegressionPackAPITests.Utils
@@ -16,11 +18,13 @@ namespace RegressionPackAPITests.Utils
         public static string reportPath;
         private readonly ScenarioContext scenarioContext;
         private readonly FeatureContext featureContext;
+        private readonly ApiContext apiContext;
 
-        public Reporting(ScenarioContext scenarioContext, FeatureContext featureContext)
+        public Reporting(ScenarioContext scenarioContext, FeatureContext featureContext, ApiContext apiContext)
         {
             this.scenarioContext = scenarioContext;
             this.featureContext = featureContext;
+            this.apiContext = apiContext;
         }
 
         [BeforeTestRun]
@@ -38,7 +42,7 @@ namespace RegressionPackAPITests.Utils
             featureName = extent.CreateTest<Feature>(featureContext.FeatureInfo.Title);
             scenario = featureName.CreateNode<Scenario>(scenarioContext.ScenarioInfo.Title);
         }
-
+        
         [AfterStep]
         public void GetStepsInfo()
         {
@@ -66,7 +70,8 @@ namespace RegressionPackAPITests.Utils
             if (scenarioContext.TestError != null)
             {
                 node.Fail(this.scenarioContext.TestError.Message)
-                    .Fail(this.GetInnerExceptionMessage());
+                    .Fail(this.GetInnerExceptionMessage())
+                    .Fail($"Endpoint: {ExecutionConfig.BaseUrl}{this.apiContext.endpoint}");
             }
         }
 
@@ -75,7 +80,7 @@ namespace RegressionPackAPITests.Utils
 
         private static string GetReportsPath()
         {
-            return $"{Environment.CurrentDirectory}\\Report\\index.html";
+            return $"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}\\Reports\\";
         }
 
         private string GetInnerExceptionMessage()

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using RegressionPackAPITests.Constants;
+using RegressionPackAPITests.Context;
 using RegressionPackAPITests.POCO.RequestResponse;
 using RegressionPackAPITests.POCO.Setup;
 using System;
@@ -10,9 +11,17 @@ using System.Threading.Tasks;
 
 namespace RegressionPackAPITests.Utils
 {
-    public static class ClientHelper
+    public class ClientHelper
     {
-        public static HttpClient GetClient()
+        private readonly ApiContext apiContext;
+
+        public ClientHelper(ApiContext apiContext)
+        {
+            this.apiContext = apiContext;
+        }
+
+
+        public HttpClient GetClient()
         {
             var client = new HttpClient();
 
@@ -23,7 +32,7 @@ namespace RegressionPackAPITests.Utils
             return client;
         }
 
-        public static async Task<T> GetRestResonse<T>(string endpoint, HttpMethod requestType, HttpClient client, object bodyData = null)
+        public async Task<T> GetRestResonse<T>(string endpoint, HttpMethod requestType, HttpClient client, object bodyData = null)
         {
             var request = new HttpRequestMessage(requestType, endpoint);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MimeTypes.ApplicationJson));
@@ -39,7 +48,7 @@ namespace RegressionPackAPITests.Utils
             return JsonConvert.DeserializeObject<T>(content);
         }
 
-        public static PostTokenRequest GetTokenRequest()
+        public PostTokenRequest GetTokenRequest()
         {
             return new PostTokenRequest
             {
@@ -49,10 +58,12 @@ namespace RegressionPackAPITests.Utils
             };
         }
 
-        public static PostTokenResponse PostToken(HttpClient client, PostTokenRequest postTokenRequest)
+        public PostTokenResponse PostToken(HttpClient client, PostTokenRequest postTokenRequest)
         {
+            this.apiContext.endpoint = ApiEndpoints.PostTokens;
+
             return GetRestResonse<PostTokenResponse>(
-                ApiEndpoints.PostTokens, HttpMethod.Post, client, postTokenRequest).Result;
+                this.apiContext.endpoint, HttpMethod.Post, client, postTokenRequest).Result;
         }
     }
 }

@@ -20,5 +20,7 @@ namespace RegressionPackAPITests.Context
         public MileageResponse MileageResponse { get; set; }
 
         public SessionDelete SessionDelete { get; set; }
+
+        public string endpoint { get; set; }
     }
 }
